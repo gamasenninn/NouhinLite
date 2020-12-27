@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block content %}
+
+
+<h3>Hello</h3>
+こんにちは。{{ name }}さん。
+
+<h3>納品書一覧</h3>
+<ul>
+{% for nou in nous %}
+    <li>{{ nou.ID}} : {{ nou.納品日 }} : {{ nou.納品先 }}</li>
+{% endfor %}
+</ul>
+
+<h3>明細一覧</h3>
+{% for nd in ndtails %}
+    <li>{{ nd.ID}} : {{ nd.納品ID }} : {{ nd.商品名 }}</li>
+{% endfor %}
+
+<div id="app">
+  <button v-on:click="show" class="button">show!</button>
+  <modal name="hello-world" :draggable="true" :resizable="true">
+    <div class="modal-header">
+      <h2>Modal title</h2>
+    </div>
+    <div class="modal-body">
+      <p>you're reading this text in a modal!</p>
+      <button v-on:click="hide">閉じる</button>
+    </div>  
+  </modal>
+</div>
+
+<script>
+const VModal = window["vue-js-modal"].default;
+
+Vue.use(VModal);
+new Vue({
+  el: '#app',
+  methods: {
+    show : function() {
+      this.$modal.show('hello-world');
+    },
+    hide : function () {
+      this.$modal.hide('hello-world');
+    },
+  }
+})
+
+
+</script>
+
+{% endblock %}
