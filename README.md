@@ -29,7 +29,7 @@ $git clone https://github.com/gamasenninn/NouhinLite
 python環境があるという前提とします。
 次のファイルを実行します。
 ```
-python btNou.py
+$python btNou.py
 ```
 すると次のような画面が表示されます。
 
