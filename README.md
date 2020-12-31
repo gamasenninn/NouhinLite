@@ -20,5 +20,11 @@ easy CRUD System and to output with PDF for Nouhinsho &amp; Seikyuusho
 使い慣れたブラウザでデータを入力すればすぐに納品書が発行できるようになります。  
 そんなユースケースのイメージでこのシステムを作成しようとしています。  
 
+# システムのインストール
+
+'''
+$git clone ---------
+'''
+
 
 
