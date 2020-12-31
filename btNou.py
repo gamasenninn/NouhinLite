@@ -36,10 +36,10 @@ def api():
     c = conn.cursor()
     c.execute('SELECT * FROM 納品' )
     nous = json.dumps(c.fetchall())
-
+    return nous
     
-    res = HTTPResponse(status=200, body=nous, headers=header)
-    return res
+#    res = HTTPResponse(status=200, body=nous, headers=header)
+#    return res
 
 #commit test
 
