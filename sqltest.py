@@ -13,7 +13,6 @@ conn.row_factory = dict_factory
 
 c = conn.cursor()
 c.execute('SELECT * FROM 納品' )
-#nous = json.dumps(c.fetchall())
 
 nous = c.fetchall()
 
