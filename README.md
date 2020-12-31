@@ -73,3 +73,36 @@ Pyinstallで必要なライブラリーを同梱したものをダウンロー�
 Q. なぜFlaskではなくBottleを使うのですか？
 >A. Bottleは1ファイルで完結するため、pipが動かないサーバーにもインストールできるからです。
 
+# Tips集
+## SQLiteのデータをJson化するには
+SQLiteでデータを取得するfetchはデフォルトでは配列を返すだけです。通常はそれで問題ありませんが、
+APIを作成する場合著しく汎用性に欠けるものになってしまいます。  
+そのためには少々工夫が必要です。幸いSQLiteのConnectionオブジェクトにはrow_factoryという便利な属性があります。  
+この属性に返却値のロジックを与えることで目的のデータフォーマットを出力することができます。 
+本プログラムではAPIルーターでこの処理をJSON出力として利用します。tugi 
+次に示す簡単なサンプルプログラムを見れば理解が早いと思います。  
+sqltest.py  
+```
+import sqlite3
+import json
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+conn = sqlite3.connect('nousei.db')
+#conn.row_factory = sqlite3.Row
+conn.row_factory = dict_factory
+
+c = conn.cursor()
+c.execute('SELECT * FROM 納品' )
+#nous = json.dumps(c.fetchall())
+
+nous = c.fetchall()
+
+print (nous)
+```
+
+
