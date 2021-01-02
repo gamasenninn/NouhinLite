@@ -3,11 +3,9 @@ import json
 
 
 def sqlify_list(string_iterable):
-    """ ('a', 'b', 'c') -> '(a, b, c)' """
     return f'({",".join(string_iterable)})'
 
 def sqlify_list2(string_iterable):
-    """ ('a', 'b', 'c') -> '(a, b, c)' """
     return f'({"=?,".join(string_iterable)})'
 
 #    return ','.join([f'{key} = {value}' for key, value in string_iterable.items()])
@@ -18,23 +16,26 @@ def json_insert(conn, table_name, d):
     conn.execute(
         'insert into {table_name} {keys} values {replacement_fields}'.format(
             table_name=table_name,
-            keys=sqlify_list(d), # dict.__iter__ yields the keys, so .keys() isn't necessary
-            replacement_fields=sqlify_list('?'*len(d)) # str.__iter__ yields characters, so ','.join('?'*5) is equivalent to ','.join(['?']*5)
+            keys=sqlify_list(d), 
+            replacement_fields=sqlify_list('?'*len(d)) 
         ),
         tuple(d.values())
     )
 
 #------ Update operation
 
-def json_update(conn,table_name,d,rkey,rvalue):
+def json_update(conn,table_name,d,key_name):
+    print("key_nmae="+key_name)
+    v = [v for k,v in data.items() if k == key_name]
+    #key_value = v[0] if len(v) else ''
+    #print("key_value="+v)
     print(
-        'update {table_name} set {key_values} where {rkey} = {rvalue}'.format(
+        'update {table_name} set {key_values} where {key_name} = ? '.format(
             table_name=table_name,
             key_values=sqlify_list2(d),
-            rkey = rkey,
-            rvalue = rvalue
+            key_name = key_name
         ),
-        tuple(d.values())
+        tuple(d.values())+tuple(v)
     )
 
 
@@ -76,5 +77,5 @@ nous = c.fetchall()
 print (nous)
 
 #-----Update data------
-data = {'納品日': "2020/11/02",'納品先': "DEF商店",'担当者': "小野",'摘要': "特別注文"}
-json_update(conn,'納品',data,rkey='ID',rvalue='3')
+data = {'ID': 3,'納品日': "2020/11/02",'納品先': "DEF商店",'担当者': "小野",'摘要': "特別注文"}
+json_update(conn,'納品',data,'担当者')
