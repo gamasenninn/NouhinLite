@@ -19,23 +19,47 @@ def nouhin():
 
     j_ndtails = json_select_all(conn,'納品明細')
     ndtails = json.loads(j_ndtails)
-    
+
+    conn.close()
     return template('hello.html', title='test', name=name,nous =nous,ndtails=ndtails ) #変更
 
 
-@route('/api/<table>',method=['GET','POST'])
-def api(table):
+@route('/api/<table>',method=['GET'])
+def api_get_post(table):
     header = {"Content-Type": "application/json"}
     conn = sqlite3.connect('nousei.db')
-
-    if request.method == 'GET':
-        res = json_select_all(conn,table)
-    else:
-        res = dict_insert(conn,table,request.json)
-        conn.commit()
+    res = json_select_all(conn,table)
     conn.close()
     return HTTPResponse(status=200, body=res, headers=header)
 
+@route('/api/<table>',method=['POST'])
+def api_get_post(table):
+    header = {"Content-Type": "application/json"}
+    conn = sqlite3.connect('nousei.db')
+    res = dict_insert(conn,table,request.json)
+    conn.commit()
+    conn.close()
+    return HTTPResponse(status=200, body=res, headers=header)
+
+@route('/api/<table>',method=['PUT'])
+def api_put_del(table):
+    header = {"Content-Type": "application/json"}
+    conn = sqlite3.connect('nousei.db')
+    res = dict_update(conn,table,request.json,'ID')
+    conn.commit()
+    conn.close()
+    return HTTPResponse(status=200, body=res, headers=header)
+
+@route('/api/<table>/<pkey>',method=['PUT','DELETE'])
+def api_put_del(table,pkey):
+    header = {"Content-Type": "application/json"}
+    conn = sqlite3.connect('nousei.db')
+
+    del_key = {'ID':pkey }
+    res = dict_delete(conn,table,del_key,'ID')
+    conn.commit()
+    conn.close()
+    return HTTPResponse(status=200, body=res, headers=header)
 
 
 run(host='localhost', port=8080, reload=True, debug=True)

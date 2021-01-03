@@ -45,7 +45,8 @@ def dict_update(conn,table_name,d,key_name):
                 key_values=sqlify_for_update(d),
                 key_name = key_name
             )
-        conn.execute( sql, pre_vals )
+        c = conn.cursor()
+        c.execute( sql, pre_vals )
         return "OK: "+"{sql} {values}".format(sql=sql,values=pre_vals)
     except:
         return "SQL ERROR"
