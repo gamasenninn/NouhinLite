@@ -37,7 +37,6 @@ def json_insert(conn,table_name,j):
 def dict_update(conn,table_name,d,key_name):
     v = d.pop(key_name)
     vl=[v]
-#    vl.append(v)
 
     try:
         pre_vals = tuple(d.values())+tuple(vl)

@@ -127,7 +127,7 @@ DBへのアクセスはなるべく生のSQLを書かないようにしたいと
 SQLインジェクション防止とプログラムのメンテナンス性向上のためです。SQLite以外のDBMSでも簡単に移行が可能となります。    
 とはいえORMなどを導入するまではいかないのでDBアクセスのためのラッパーを用意したいと思います。  
 一方フロントからのデータ入出力はすべてajax通信によるものなのでJsonでのやり取りになります。  
-次のような関数群を想定しています。  
+次のような関数群を想定しています（詳細はsqlwrap.pyを参照してください）。  
 ```
 import sqlite3
 import json
@@ -147,14 +147,17 @@ def dict_factory(cursor, row):
 #----- Insert operation
 
 def dict_insert(conn, table_name, d):
-    conn.execute(
-        'insert into {table_name} {keys} values {replacement_fields}'.format(
-            table_name=table_name,
-            keys=sqlify_for_insert(d), 
-            replacement_fields=sqlify_for_insert('?'*len(d)) 
-        ),
-        tuple(d.values())
-    )
+    try:
+        pre_vals = tuple(d.values())
+        sql = 'insert into {table_name} {keys} values {replacement_fields}'.format(
+                table_name=table_name,
+                keys=sqlify_for_insert(d), 
+                replacement_fields=sqlify_for_insert('?'*len(d)) 
+            )
+        conn.execute( sql, pre_vals )
+        return "OK: "+"{sql} {values}".format(sql=sql,values=pre_vals)
+    except:
+        return "SQL ERROR"
 
 def json_insert(conn,table_name,j):
     dic_d = json.loads(j)
@@ -164,52 +167,25 @@ def json_insert(conn,table_name,j):
 
 def dict_update(conn,table_name,d,key_name):
     v = d.pop(key_name)
-    vl=[]
-    vl.append(v)
-    
-    conn.execute(
-        'update {table_name} set {key_values} where {key_name} = ? '.format(
-            table_name=table_name,
-            key_values=sqlify_for_update(d),
-            key_name = key_name
-        ),
-        tuple(d.values())+tuple(vl)
-    )
+    vl=[v]
+
+    try:
+        pre_vals = tuple(d.values())+tuple(vl)
+        sql ='update {table_name} set {key_values} where {key_name} = ? '.format(
+                table_name=table_name,
+                key_values=sqlify_for_update(d),
+                key_name = key_name
+            )
+        conn.execute( sql, pre_vals )
+        return "OK: "+"{sql} {values}".format(sql=sql,values=pre_vals)
+    except:
+        return "SQL ERROR"
 
 def json_update(conn,table_name,j,key_name):
     dic_j = json.loads(j)
     return dict_update(conn,table_name,dic_j,key_name)
 
-#----- delete operation
-
-def dict_delete(conn, table_name, d, key_name):
-    v = d.pop(key_name)
-    vl=[]
-    vl.append(v)
-    conn.execute(
-        'delete from {table_name} where {keys} = ?'.format(
-            table_name=table_name,
-            keys=key_name
-        ),
-        tuple(vl)
-    )
-
-def json_delete(conn,table_name,j,key_name):
-    dic_j = json.loads(j)
-    return dict_delete(conn,table_name,dic_j,key_name)
-
-
-#------ select operation
-
-def json_select_all(conn, table_name):
-    conn.row_factory = dict_factory
-
-    c = conn.cursor()
-    c.execute('SELECT * FROM '+table_name )
-
-    nous = c.fetchall()
-
-    return nous
+（以下省略）
 
 ```
 
