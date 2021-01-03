@@ -27,11 +27,13 @@ print("\n-----Created Table------")
 print("\n-----insert into Table------")
 
 data = {'納品日': "2020/11/01",'納品先': "ABC商店",'担当者': "小野",'摘要': "特別注文"}
-dict_insert(conn, '納品', data)
+ret = dict_insert(conn, '納品', data)
+print (ret)
 
 data = {'納品日': "2020/11/02",'納品先': "DEF商店",'担当者': "小野",'摘要': "特別注文"}
 j_data = json.dumps(data)
-json_insert(conn, '納品', j_data)
+ret = json_insert(conn, '納品', j_data)
+print (ret)
 
 
 #----Select data ------
@@ -44,11 +46,13 @@ print (nous)
 #-----Update data------
 print("\n-----Update Table------")
 data = {'ID': 2,'納品日': "2020/11/02",'納品先': "更新テスト",'担当者': "小野",'摘要': "特別注文"}
-dict_update(conn,'納品',data,'ID')
+ret = dict_update(conn,'納品',data,'ID')
+print (ret)
 
 data = {'納品日': "2020/11/02",'担当者': "小野",'摘要': "更新テスト"}
 j_data = json.dumps(data)
-json_update(conn,'納品',j_data,'担当者')
+ret = json_update(conn,'納品',j_data,'担当者')
+print (ret)
 
 #----Select data ------
 print("\n-----select from Table------")
@@ -64,11 +68,13 @@ print(nous)
 #-----Delete data------
 print("\n-----Delete Table------")
 data = {'ID': 2}
-dict_delete(conn,'納品',data,'ID')
+ret = dict_delete(conn,'納品',data,'ID')
+print (ret)
 
 data = {'ID': 1}
 j_data = json.dumps(data)
-json_delete(conn,'納品',j_data,'ID')
+ret = json_delete(conn,'納品',j_data,'ID')
+print (ret)
 
 #----Select data ------
 print("\n-----select from Table------")

@@ -17,18 +17,16 @@ def dict_factory(cursor, row):
 
 def dict_insert(conn, table_name, d):
     try:
+        pre_vals = tuple(d.values())
         sql = 'insert into {table_name} {keys} values {replacement_fields}'.format(
                 table_name=table_name,
                 keys=sqlify_for_insert(d), 
                 replacement_fields=sqlify_for_insert('?'*len(d)) 
             )
-        conn.execute(
-            sql,
-            tuple(d.values())
-        )
-        return "OK:"+sql
+        conn.execute( sql, pre_vals )
+        return "OK: "+"{sql} {values}".format(sql=sql,values=pre_vals)
     except:
-        return "SQL ERROE"
+        return "SQL ERROR"
 
 def json_insert(conn,table_name,j):
     dic_d = json.loads(j)
@@ -38,17 +36,20 @@ def json_insert(conn,table_name,j):
 
 def dict_update(conn,table_name,d,key_name):
     v = d.pop(key_name)
-    vl=[]
-    vl.append(v)
-    
-    conn.execute(
-        'update {table_name} set {key_values} where {key_name} = ? '.format(
-            table_name=table_name,
-            key_values=sqlify_for_update(d),
-            key_name = key_name
-        ),
-        tuple(d.values())+tuple(vl)
-    )
+    vl=[v]
+#    vl.append(v)
+
+    try:
+        pre_vals = tuple(d.values())+tuple(vl)
+        sql ='update {table_name} set {key_values} where {key_name} = ? '.format(
+                table_name=table_name,
+                key_values=sqlify_for_update(d),
+                key_name = key_name
+            )
+        conn.execute( sql, pre_vals )
+        return "OK: "+"{sql} {values}".format(sql=sql,values=pre_vals)
+    except:
+        return "SQL ERROR"
 
 def json_update(conn,table_name,j,key_name):
     dic_j = json.loads(j)
@@ -58,15 +59,17 @@ def json_update(conn,table_name,j,key_name):
 
 def dict_delete(conn, table_name, d, key_name):
     v = d.pop(key_name)
-    vl=[]
-    vl.append(v)
-    conn.execute(
-        'delete from {table_name} where {keys} = ?'.format(
-            table_name=table_name,
-            keys=key_name
-        ),
-        tuple(vl)
-    )
+    vl=[v]
+    pre_vals = tuple(vl)
+    try:    
+        sql = 'delete from {table_name} where {keys} = ?'.format(
+                table_name=table_name,
+                keys=key_name
+            )    
+        conn.execute( sql, pre_vals )
+        return "OK: "+"{sql} {values}".format(sql=sql,values=pre_vals)
+    except:
+        return "SQL ERROR"
 
 def json_delete(conn,table_name,j,key_name):
     dic_j = json.loads(j)
