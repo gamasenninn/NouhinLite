@@ -88,4 +88,21 @@ def json_select_all(conn, table_name):
 
     return json.dumps(nous)
 
+def json_select_one(conn, table_name,d, key_name):
+    conn.row_factory = dict_factory
+
+    v = d.pop(key_name)
+    vl=[v]
+    pre_vals = tuple(vl)
+
+    c = conn.cursor()
+    sql = 'select * from {table_name} where {keys} = ?'.format(
+                table_name=table_name,
+                keys=key_name
+    )    
+    c.execute( sql, pre_vals )
+
+    nous = c.fetchone()  
+
+    return json.dumps(nous)
 

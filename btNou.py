@@ -1,4 +1,4 @@
-from bottle import route, run, jinja2_template as template,HTTPResponse,response,request
+from bottle import route, run, jinja2_template as template,HTTPResponse,response,request,static_file
 import sqlite3
 import json
 from sqlwrap import *
@@ -7,6 +7,11 @@ from sqlwrap import *
 @route('/')
 def index():
     return template('menu.html',title='test',name="AAAA")
+
+@route('/v')
+def vue_test():
+    return static_file('vue_test.html',root="./views")
+
 
 @route('/nouhin')
 def nouhin():
@@ -25,10 +30,19 @@ def nouhin():
 
 
 @route('/api/<table>',method=['GET'])
-def api_get_post(table):
+def api_get_all(table):
     header = {"Content-Type": "application/json"}
     conn = sqlite3.connect('nousei.db')
     res = json_select_all(conn,table)
+    conn.close()
+    return HTTPResponse(status=200, body=res, headers=header)
+
+@route('/api/<table>/<pkey>',method=['GET'])
+def api_get_one(table,pkey):
+    header = {"Content-Type": "application/json"}
+    conn = sqlite3.connect('nousei.db')
+    sel_key = {'ID':pkey}
+    res = json_select_one(conn,table,sel_key,'ID')
     conn.close()
     return HTTPResponse(status=200, body=res, headers=header)
 
@@ -50,7 +64,7 @@ def api_put_del(table):
     conn.close()
     return HTTPResponse(status=200, body=res, headers=header)
 
-@route('/api/<table>/<pkey>',method=['PUT','DELETE'])
+@route('/api/<table>/<pkey>',method=['DELETE'])
 def api_put_del(table,pkey):
     header = {"Content-Type": "application/json"}
     conn = sqlite3.connect('nousei.db')
