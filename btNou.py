@@ -4,6 +4,9 @@ import json
 from sqlwrap import *
 
 
+#conn = sqlite3.connect('nousei.db')
+
+
 @route('/')
 def index():
     return template('menu.html',title='test',name="AAAA")
@@ -55,17 +58,19 @@ def api_get_post(table):
     conn.close()
     return HTTPResponse(status=200, body=res, headers=header)
 
-@route('/api/<table>',method=['PUT'])
-def api_put_del(table):
+@route('/api/<table>',method='PUT')
+def api_put(table):
     header = {"Content-Type": "application/json"}
-    conn = sqlite3.connect('nousei.db')
-    res = dict_update(conn,table,request.json,'ID')
-    conn.commit()
-    conn.close()
-    return HTTPResponse(status=200, body=res, headers=header)
+    #conn = sqlite3.connect('nousei.db')
+    #res = dict_update(conn,table,request.json,'ID')
+    #conn.commit()
+    #conn.close()
+    res = "本日は晴天ですね"
+    #return HTTPResponse(status=200, body=res, headers=header)
+    return res
 
 @route('/api/<table>/<pkey>',method=['DELETE'])
-def api_put_del(table,pkey):
+def api_del(table,pkey):
     header = {"Content-Type": "application/json"}
     conn = sqlite3.connect('nousei.db')
 
@@ -76,4 +81,7 @@ def api_put_del(table,pkey):
     return HTTPResponse(status=200, body=res, headers=header)
 
 
-run(host='localhost', port=8080, reload=True, debug=True)
+#run(host='localhost', port=8080, reload=True, debug=True)
+run(host='localhost', port=9090)
+
+#conn.close()
