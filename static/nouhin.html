@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NouhinLite</title>
+  <!-- Load required Bootstrap and BootstrapVue CSS -->
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+  <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+
+  <!-- Load polyfills to support older browsers -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"     crossorigin="anonymous"></script>
+
+  <!-- Load Vue followed by BootstrapVue -->
+  <script src="https://unpkg.com/vue@latest/dist/vue.min.js"></script>
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+
+  <!-- Load the following for BootstrapVueIcons support -->
+  <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <style>
+   .modal-mask {
+     position: fixed;
+     z-index: 9998;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background-color: rgba(0, 0, 0, .5);
+     display: table;
+     transition: opacity .3s ease;
+   }
+
+   .modal-wrapper {
+     display: table-cell;
+     vertical-align: middle;
+   }
+  </style>
+ </head>
+
+<body>
+
+<div class="container-fluid">
+   <br />
+   <h3 align="center">納品書作成</h3>
+   <br />
+</div>
+
+<!---------納品書ヘッダー------>
+<div class="container-fluid" id="crudApp">
+
+ <template>
+ <div class="overflow-auto" >
+    <b-pagination
+      	     v-model="currentPage"
+	     :total-rows = "rows"
+	     :per-page="perPage"
+	     aria-controls="htable"
+	     size = "sm"
+	     align= "left"
+    ></b-pagination>
+
+    <b-table striped hover caption-top
+	  id = "htable"
+	  sort-by =  "ID"
+	  sort-desc = true
+	  :per-page = "perPage"
+	  :current-page = "currentPage"
+	  small
+          label="Table Options"
+          :items= allData
+          :fields="[
+            {
+              key: 'ID',
+              label: 'ID',
+	      sortable: true
+            },
+            {
+              key: '納品日',
+              label: '納品日',
+	      sortable: true
+            },
+            {
+              key: '納品先',
+              label: '納品先',
+	      sortable: true
+            },
+            {
+              key: '担当者',
+              label: '担当者',
+	      sortable: true
+            },
+            {
+              key: '摘要',
+              label: '摘要'
+            },
+            {
+              key: 'control',
+              label: '操作'
+            },
+
+          ]"
+    >
+      <template v-slot:table-caption>
+	 納品一覧
+	 <div class="text-left">
+             <input type="button" class="btn btn-success btn-sm" @click="openModel" value="新規" aligin="right"/>
+         </div>
+      </template>
+      <template v-slot:cell(control)="data">
+         <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" >編集</button>
+         <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)">削除</button>
+      </template>
+    </b-table>
+ </div>
+ </template>
+
+ <div v-if="myModel">
+    <transition name="model">
+     <div class="modal-mask">
+      <div class="modal-wrapper">
+       <div class="modal-dialog">
+        <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" @click="myModel=false"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">{{ dynamicTitle }}</h4>
+         </div>
+         <div class="modal-body">
+          <div class="form-group">
+           <label>納品日</label>
+           <input type="text" class="form-control" v-model="納品日" />
+          </div>
+          <div class="form-group">
+           <label>納品先</label>
+           <input type="text" class="form-control" v-model="納品先" />
+          </div>
+          <div class="form-group">
+           <label>担当者</label>
+           <input type="text" class="form-control" v-model="担当者" />
+          </div>
+          <div class="form-group">
+           <label>摘要</label>
+           <input type="text" class="form-control" v-model="摘要" />
+          </div>
+          <br />
+          <div align="center">
+           <input type="hidden" v-model="hiddenId" />
+           <input type="button" class="btn btn-success btn-xs" v-model="actionButton" @click="submitData" />
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </transition>
+  </div> <!--End Modal --> 
+</div>
+
+
+
+
+
+
+
+</body>
+</html>
+
+<script>
+
+var app = new Vue({
+ el:'#crudApp',
+ props:{
+   allData:{ type: Array }
+ }
+ ,
+ data:{
+  myModel:false,
+  actionButton:'Insert',
+  dynamicTitle:'Add Data',
+  perPage: 2,
+  currentPage: 1
+ },
+ methods:{
+  fetchAllData:function(){
+   axios.get('/api/納品', {
+    action:'fetchall'
+   }).then(function(response){
+    app.allData = response.data;
+   });
+  },
+  openModel:function(){
+   app.納品日 = '';
+   app.納品先 = '';
+   app.担当者 = ''; 
+   app.摘要 = '';
+   app.hiddenId = '';
+   app.actionButton = "Insert";
+   app.dynamicTitle = "Add Data";
+   app.myModel = true;
+  },
+  submitData:function(){
+   if(app.納品日 != '' && app.納品先 != '')
+   {
+    if(app.actionButton == 'Insert')
+    {
+     axios.post('/api/納品', {
+         納品日:app.納品日, 
+         納品先:app.納品先, 
+         担当者:app.担当者, 
+         摘要:app.摘要 
+     }).then(function(response){
+      app.myModel = false;
+      app.fetchAllData();
+      app.納品日 = '';
+      app.納品先 = '';
+      app.担当者 = ''; 
+      app.摘要 = '';
+      alert(response.data.message);
+     });
+    }
+    if(app.actionButton == 'Update')
+    {
+     axios.put('/api/納品', {
+	 ID : app.hiddenId,
+         納品日:app.納品日, 
+         納品先:app.納品先, 
+         担当者:app.担当者, 
+         摘要:app.摘要 
+     }).then(function(response){
+      app.myModel = false;
+      app.fetchAllData();
+      app.納品日 = '';
+      app.納品先 = '';
+      app.担当者 = ''; 
+      app.摘要 = '';
+      app.hiddenId = '';
+      alert(response.data.message);
+     });
+    }
+   }
+   else
+   {
+    alert("Fill All Field");
+   }
+  },
+  fetchData:function(id){
+   axios.get('/api/納品/'+id, {
+    ID:id
+   }).then(function(response){
+    app.hiddenId = response.data.ID;
+    app.納品日 = response.data.納品日;
+    app.納品先 = response.data.納品先;
+    app.担当者 = response.data.担当者;
+    app.摘要 = response.data.摘要;
+    app.myModel = true;
+    app.actionButton = 'Update';
+    app.dynamicTitle = 'Edit Data';
+   });
+  },
+  deleteData:function(id){
+   if(confirm("Are you sure you want to remove this data?"))
+   {
+    axios.delete('/api/納品/'+id, {
+     ID:id
+    }).then(function(response){
+     app.fetchAllData();
+     alert(response.data.message);
+    });
+   }
+  }
+ },
+ created:function(){
+  this.fetchAllData();
+ },
+ computed:{
+	rows(){
+	       //return this.items.length
+		return 5
+	}
+ }
+});
+</script>
+
