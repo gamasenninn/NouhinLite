@@ -5,29 +5,26 @@ from sqlwrap import *
 
 app = Flask(__name__)
 
+#------各処理ページの基本的なルーティング-------
+
 @app.route('/')
 def hello():
-    return render_template('menu.html', title='メニュー', name="TEST") #変更
+    return render_template('menu.html', title='メニュー', name="TEST") 
 
 @app.route('/v')
 def vue():
     return app.send_static_file('vue_test.html')
 
+@app.route('/bv')
+def bv():
+    return app.send_static_file('bv_test.html')
+
 @app.route('/nouhin')
 def nouhin():
-    name = "Hoge"
+    return app.send_static_file('nouhin.html')
 
-    conn = sqlite3.connect('nousei.db')
 
-    j_nous = json_select_all(conn,'納品')
-    nous = json.loads(j_nous)
-
-    j_ndtails = json_select_all(conn,'納品明細')
-    ndtails = json.loads(j_ndtails)
-
-    conn.close()
-    return render_template('hello.html', title='test', name=name,nous =nous,ndtails=ndtails ) #変更
-
+#--------API ブロック -------------
 @app.route('/api/<table>',methods=['GET'])
 def api_get_all(table):
     conn = sqlite3.connect('nousei.db')
