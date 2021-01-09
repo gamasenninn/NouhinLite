@@ -23,6 +23,13 @@ def bv():
 def nouhin():
     return app.send_static_file('nouhin.html')
 
+@app.route('/compo')
+def compo():
+    return app.send_static_file('./Vue_test/nouhin.html')
+
+@app.route('/compo/<f>')
+def compof(f):
+    return app.send_static_file('./Vue_test/'+f)
 
 #--------API ブロック -------------
 @app.route('/api/<table>',methods=['GET'])
@@ -37,6 +44,14 @@ def api_get_one(table,pkey):
     conn = sqlite3.connect('nousei.db')
     sel_key = {'ID':pkey}
     res = json_select_one(conn,table,sel_key,'ID')
+    conn.close()
+    return res
+
+@app.route('/api/<table>/<item>/<key>',methods=['GET'])
+def api_get_byKey(table,item,key):
+    conn = sqlite3.connect('nousei.db')
+    sel_key = {item:key}
+    res = json_select_one(conn,table,sel_key,item)
     conn.close()
     return res
 

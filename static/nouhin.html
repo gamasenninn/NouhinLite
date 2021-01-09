@@ -48,9 +48,9 @@
    <br />
 </div>
 
-<!---------納品書ヘッダー------>
 <div class="container-fluid" id="crudApp">
 
+<!---------納品書ヘッダー------>
  <template>
  <div class="overflow-auto" >
     <b-pagination
@@ -110,12 +110,77 @@
          </div>
       </template>
       <template v-slot:cell(control)="data">
+         <button type="button" name="detail" class="btn btn-primary btn-sm edit" v-on:click="fetchAllData_detail_byID(`${data.item.ID}`)" >明細</button>
          <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" >編集</button>
          <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)">削除</button>
       </template>
     </b-table>
  </div>
  </template>
+
+
+<!---------納品書明細ー------>
+ <template>
+ <div class="overflow-auto" >
+    <b-table striped hover caption-top
+	  id = "htable_detail"
+	  sort-by =  "ID"
+	  sort-desc = true
+	  small
+          label="Table Options"
+          :items= allData_detail
+          :fields="[
+            {
+              key: 'ID',
+              label: 'ID',
+	      sortable: true
+            },
+            {
+              key: '納品ID',
+              label: '納品ID',
+	      sortable: true
+            },
+            {
+              key: '商品名',
+              label: '商品名',
+	      sortable: true
+            },
+            {
+              key: '商品ロット',
+              label: '商品ロット',
+	      sortable: true
+            },
+            {
+              key: '摘要',
+              label: '摘要'
+            },
+            {
+              key: 'control',
+              label: '操作'
+            },
+
+          ]"
+    >
+      <template v-slot:table-caption>
+	 納品明細
+	 <div class="text-left">
+             <input type="button" class="btn btn-success btn-sm" @click="openModel" value="新規" aligin="right"/>
+         </div>
+      </template>
+      <template v-slot:cell(control)="data">
+         <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" >編集</button>
+         <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)">削除</button>
+      </template>
+    </b-table>
+ </div>
+ </template>
+
+
+
+
+
+
+
 
  <div v-if="myModel">
     <transition name="model">
@@ -172,7 +237,8 @@
 var app = new Vue({
  el:'#crudApp',
  props:{
-   allData:{ type: Array }
+   allData:{ type: Array },
+   allData_detail:{ type: Array }
  }
  ,
  data:{
@@ -188,6 +254,20 @@ var app = new Vue({
     action:'fetchall'
    }).then(function(response){
     app.allData = response.data;
+   });
+  },
+  fetchAllData_detail:function(){
+   axios.get('/api/納品明細', {
+    action:'fetchall'
+   }).then(function(response){
+    app.allData_detail = response.data;
+   });
+  },
+  fetchAllData_detail_byID:function(id){
+   axios.get('/api/納品明細/'+id, {
+    action:'fetchall'
+   }).then(function(response){
+    app.allData_detail = response.data;
    });
   },
   openModel:function(){
@@ -259,6 +339,20 @@ var app = new Vue({
     app.dynamicTitle = 'Edit Data';
    });
   },
+  fetchData_detail:function(id){
+   axios.get('/api/納品明細/'+id, {
+    納品ID:id
+   }).then(function(response){
+    app.hiddenId = response.data.ID;
+    app.納品日 = response.data.納品日;
+    app.納品先 = response.data.納品先;
+    app.担当者 = response.data.担当者;
+    app.摘要 = response.data.摘要;
+    app.myModel = true;
+    app.actionButton = 'Update';
+    app.dynamicTitle = 'Edit Data';
+   });
+  },
   deleteData:function(id){
    if(confirm("Are you sure you want to remove this data?"))
    {
@@ -273,13 +367,17 @@ var app = new Vue({
  },
  created:function(){
   this.fetchAllData();
+  this.fetchAllData_detail();
  },
  computed:{
 	rows(){
 	       //return this.items.length
 		return 5
 	}
- }
+ },
+
+
+
 });
 </script>
 
