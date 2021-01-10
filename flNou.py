@@ -51,7 +51,7 @@ def api_get_one(table,pkey):
 def api_get_byKey(table,item,key):
     conn = sqlite3.connect('nousei.db')
     sel_key = {item:key}
-    res = json_select_one(conn,table,sel_key,item)
+    res = json_select_all_key(conn,table,sel_key,item)
     conn.close()
     return res
 

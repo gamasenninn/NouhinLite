@@ -73,6 +73,10 @@
           :items= allData
           :fields="[
             {
+              key: 'select',
+              label: '明細',
+            },
+            {
               key: 'ID',
               label: 'ID',
 	      sortable: true
@@ -109,8 +113,10 @@
              <input type="button" class="btn btn-success btn-sm" @click="openModel" value="新規" aligin="right"/>
          </div>
       </template>
-      <template v-slot:cell(control)="data">
+      <template v-slot:cell(select)="data">
          <button type="button" name="detail" class="btn btn-primary btn-sm edit" v-on:click="fetchAllData_detail_byID(`${data.item.ID}`)" >明細</button>
+      </template>
+      <template v-slot:cell(control)="data">
          <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" >編集</button>
          <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)">削除</button>
       </template>
@@ -125,7 +131,7 @@
     <b-table striped hover caption-top
 	  id = "htable_detail"
 	  sort-by =  "ID"
-	  sort-desc = true
+	  sort-desc = false
 	  small
           label="Table Options"
           :items= allData_detail
@@ -151,8 +157,12 @@
 	      sortable: true
             },
             {
-              key: '摘要',
-              label: '摘要'
+              key: '数量',
+              label: '数量'
+            },
+            {
+              key: '単価',
+              label: '単価'
             },
             {
               key: 'control',
@@ -168,16 +178,12 @@
          </div>
       </template>
       <template v-slot:cell(control)="data">
-         <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" >編集</button>
+         <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData_detail(`${data.item.ID}`)" >編集</button>
          <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)">削除</button>
       </template>
     </b-table>
  </div>
  </template>
-
-
-
-
 
 
 
@@ -221,11 +227,49 @@
      </div>
     </transition>
   </div> <!--End Modal --> 
+
+
+ <div v-if="myModelDetail">
+    <transition name="modelDetail">
+     <div class="modal-mask">
+      <div class="modal-wrapper">
+       <div class="modal-dialog">
+        <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" @click="myModelDetail=false"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title">{{ dynamicTitle }}</h4>
+         </div>
+         <div class="modal-body">
+          <div class="form-group">
+           <label>商品名</label>
+           <input type="text" class="form-control" v-model="商品名" />
+          </div>
+          <div class="form-group">
+           <label>商品ロット</label>
+           <input type="text" class="form-control" v-model="商品ロット" />
+          </div>
+          <div class="form-group">
+           <label>数量</label>
+           <input type="text" class="form-control" v-model="数量" />
+          </div>
+          <div class="form-group">
+           <label>単価</label>
+           <input type="text" class="form-control" v-model="単価" />
+          </div>
+          <br />
+          <div align="center">
+           <input type="hidden" v-model="hiddenId" />
+           <input type="hidden" v-model="hidden納品Id" />
+           <input type="button" class="btn btn-success btn-xs" v-model="actionButton" @click="submitData" />
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </transition>
+  </div> <!--End Modal --> 
 </div>
-
-
-
-
 
 
 
@@ -243,6 +287,7 @@ var app = new Vue({
  ,
  data:{
   myModel:false,
+  myModelDetail:false,
   actionButton:'Insert',
   dynamicTitle:'Add Data',
   perPage: 2,
@@ -264,7 +309,7 @@ var app = new Vue({
    });
   },
   fetchAllData_detail_byID:function(id){
-   axios.get('/api/納品明細/'+id, {
+   axios.get('/api/納品明細/納品ID/'+id, {
     action:'fetchall'
    }).then(function(response){
     app.allData_detail = response.data;
@@ -344,11 +389,12 @@ var app = new Vue({
     納品ID:id
    }).then(function(response){
     app.hiddenId = response.data.ID;
-    app.納品日 = response.data.納品日;
-    app.納品先 = response.data.納品先;
-    app.担当者 = response.data.担当者;
-    app.摘要 = response.data.摘要;
-    app.myModel = true;
+    app.hidden納品Id = response.data.納品ID;
+    app.商品名 = response.data.商品名;
+    app.商品ロット = response.data.商品ロット;
+    app.数量 = response.data.数量;
+    app.単価 = response.data.単価;
+    app.myModelDetail = true;
     app.actionButton = 'Update';
     app.dynamicTitle = 'Edit Data';
    });
