@@ -48,10 +48,11 @@
    <br />
 </div>
 
-<div class="container-fluid" id="crudApp">
 
 <!---------納品書ヘッダー------>
+<div class="container-fluid" id="crudApp">
  <template>
+
  <div class="overflow-auto" >
     <b-pagination
       	     v-model="currentPage"
@@ -114,8 +115,9 @@
          </div>
       </template>
       <template v-slot:cell(select)="data">
-         <button type="button" name="detail" class="btn btn-primary btn-sm edit" v-on:click="fetchAllData_detail_byID(`${data.item.ID}`)" >明細</button>
+         <button type="button" name="detail" class="btn btn-primary btn-sm edit" v-on:click="selDetail(`${data.item.ID}`)" >明細</button>
       </template>
+
       <template v-slot:cell(control)="data">
          <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" >編集</button>
          <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)">削除</button>
@@ -123,70 +125,6 @@
     </b-table>
  </div>
  </template>
-
-
-<!---------納品書明細ー------>
- <template>
- <div class="overflow-auto" >
-    <b-table striped hover caption-top
-	  id = "htable_detail"
-	  sort-by =  "ID"
-	  sort-desc = false
-	  small
-          label="Table Options"
-          :items= allData_detail
-          :fields="[
-            {
-              key: 'ID',
-              label: 'ID',
-	      sortable: true
-            },
-            {
-              key: '納品ID',
-              label: '納品ID',
-	      sortable: true
-            },
-            {
-              key: '商品名',
-              label: '商品名',
-	      sortable: true
-            },
-            {
-              key: '商品ロット',
-              label: '商品ロット',
-	      sortable: true
-            },
-            {
-              key: '数量',
-              label: '数量'
-            },
-            {
-              key: '単価',
-              label: '単価'
-            },
-            {
-              key: 'control',
-              label: '操作'
-            },
-
-          ]"
-    >
-      <template v-slot:table-caption>
-	 納品明細
-	 <div class="text-left">
-             <input type="button" class="btn btn-success btn-sm" @click="openModel" value="新規" aligin="right"/>
-         </div>
-      </template>
-      <template v-slot:cell(control)="data">
-         <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData_detail(`${data.item.ID}`)" >編集</button>
-         <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)">削除</button>
-      </template>
-    </b-table>
- </div>
- </template>
-
-
-
 
  <div v-if="myModel">
     <transition name="model">
@@ -227,17 +165,79 @@
      </div>
     </transition>
   </div> <!--End Modal --> 
+</div>
 
+<!---------納品明細------>
+<div class="container-fluid" id="crudApp2">
+ <template>
+ <!--input type="text" class="form-control" v-model="txtDebug" / --> 
+ <div class="overflow-auto" >
+    <b-table striped hover caption-top
+	  id = "htable"
+	  sort-by =  "ID"
+	  sort-desc = false
+	  small
+          label="Table Options"
+          :items= allData
+          :fields="[
+            {
+              key: 'ID',
+              label: 'ID',
+	      sortable: true
+            },
+            {
+              key: '納品ID',
+              label: '納品ID',
+	      sortable: true
+            },
+            {
+              key: '商品名',
+              label: '商品名',
+	      sortable: true
+            },
+            {
+              key: '商品ロット',
+              label: '商品ロット',
+	      sortable: true
+            },
+            {
+              key: '数量',
+              label: '数量'
+            },
+            {
+              key: '単価',
+              label: '単価'
+            },
+            {
+              key: 'control',
+              label: '操作'
+            },
 
- <div v-if="myModelDetail">
-    <transition name="modelDetail">
+          ]"
+    >
+      <template v-slot:table-caption>
+	 納品一覧
+	 <div class="text-left">
+             <input type="button" class="btn btn-success btn-sm" @click="openModel" value="新規" aligin="right"/>
+         </div>
+      </template>
+      <template v-slot:cell(control)="data">
+         <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" >編集</button>
+         <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)">削除</button>
+      </template>
+    </b-table>
+ </div>
+ </template>
+
+ <div v-if="myModel">
+    <transition name="model">
      <div class="modal-mask">
       <div class="modal-wrapper">
        <div class="modal-dialog">
         <div class="modal-content">
          <div class="modal-header">
-          <button type="button" class="close" @click="myModelDetail=false"><span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">{{ dynamicTitle }}</h4>
+          <button type="button" class="close" @click="myModel=false"><span aria-hidden="true">&times;</span></button>
          </div>
          <div class="modal-body">
           <div class="form-group">
@@ -257,9 +257,10 @@
            <input type="text" class="form-control" v-model="単価" />
           </div>
           <br />
+          <br />
           <div align="center">
-           <input type="hidden" v-model="hiddenId" />
-           <input type="hidden" v-model="hidden納品Id" />
+           <input type="text" v-model="hiddenId" />
+           <input type="text" v-model="hidden納品Id" />
            <input type="button" class="btn btn-success btn-xs" v-model="actionButton" @click="submitData" />
           </div>
          </div>
@@ -272,7 +273,6 @@
 </div>
 
 
-
 </body>
 </html>
 
@@ -282,37 +282,24 @@ var app = new Vue({
  el:'#crudApp',
  props:{
    allData:{ type: Array },
-   allData_detail:{ type: Array }
  }
  ,
  data:{
   myModel:false,
-  myModelDetail:false,
   actionButton:'Insert',
   dynamicTitle:'Add Data',
   perPage: 2,
   currentPage: 1
  },
  methods:{
+//  debug:function(id){
+//	app2.txtDebug = id;
+//  },
   fetchAllData:function(){
    axios.get('/api/納品', {
     action:'fetchall'
    }).then(function(response){
     app.allData = response.data;
-   });
-  },
-  fetchAllData_detail:function(){
-   axios.get('/api/納品明細', {
-    action:'fetchall'
-   }).then(function(response){
-    app.allData_detail = response.data;
-   });
-  },
-  fetchAllData_detail_byID:function(id){
-   axios.get('/api/納品明細/納品ID/'+id, {
-    action:'fetchall'
-   }).then(function(response){
-    app.allData_detail = response.data;
    });
   },
   openModel:function(){
@@ -384,21 +371,6 @@ var app = new Vue({
     app.dynamicTitle = 'Edit Data';
    });
   },
-  fetchData_detail:function(id){
-   axios.get('/api/納品明細/'+id, {
-    納品ID:id
-   }).then(function(response){
-    app.hiddenId = response.data.ID;
-    app.hidden納品Id = response.data.納品ID;
-    app.商品名 = response.data.商品名;
-    app.商品ロット = response.data.商品ロット;
-    app.数量 = response.data.数量;
-    app.単価 = response.data.単価;
-    app.myModelDetail = true;
-    app.actionButton = 'Update';
-    app.dynamicTitle = 'Edit Data';
-   });
-  },
   deleteData:function(id){
    if(confirm("Are you sure you want to remove this data?"))
    {
@@ -409,11 +381,13 @@ var app = new Vue({
      alert(response.data.message);
     });
    }
+  },
+  selDetail:function(id){
+    app2.fetchAllData_byID(id);
   }
  },
  created:function(){
   this.fetchAllData();
-  this.fetchAllData_detail();
  },
  computed:{
 	rows(){
@@ -421,9 +395,126 @@ var app = new Vue({
 		return 5
 	}
  },
-
-
-
 });
+
+var app2 = new Vue({
+ el:'#crudApp2',
+ props:{
+   allData:{ type: Array },
+ }
+ ,
+ data:{
+  myModel:false,
+  actionButton:'Insert',
+  dynamicTitle:'Add Data',
+  selId :'',
+ },
+ methods:{
+  fetchAllData:function(){
+   axios.get('/api/納品明細', {
+    action:'fetchall'
+   }).then(function(response){
+    app2.allData = response.data;
+   });
+  },
+  fetchAllData_byID:function(id){
+   axios.get('/api/納品明細/納品ID/'+id, {
+    action:'fetchall'
+   }).then(function(response){
+    app2.allData = response.data;
+    app2.selId = id;
+   });
+  },
+  openModel:function(){
+   app2.商品名 = '';
+   app2.商品ロット = '';
+   app2.数量 = ''; 
+   app2.単価 = '';
+   app2.hiddenId = '';
+   app2.hidden納品Id = app2.selId;
+   app2.actionButton = "Insert";
+   app2.dynamicTitle = "Add Data";
+   app2.myModel = true;
+  },
+  submitData:function(){
+   if(app2.商品名 != '')
+   {
+    if(app2.actionButton == 'Insert')
+    {
+     axios.post('/api/納品明細', {
+         納品ID:app2.selId, 
+         商品名:app2.商品名, 
+         商品ロット:app2.商品ロット, 
+         数量:app2.数量, 
+         単価:app2.単価 
+     }).then(function(response){
+      app2.myModel = false;
+      app2.fetchAllData();
+      app2.商品名 = '';
+      app2.商品ロット = '';
+      app2.数量 = ''; 
+      app2.単価 = '';
+      alert(response.data.message);
+     });
+    }
+    if(app2.actionButton == 'Update')
+    {
+     axios.put('/api/納品明細', {
+	 ID : app2.hiddenId,
+         納品ID:app2.selId,
+         商品名:app2.商品名, 
+         商品ロット:app2.商品ロット, 
+         数量:app2.数量, 
+         単価:app2.単価 
+     }).then(function(response){
+      app2.myModel = false;
+      app2.fetchAllData_byID(app2.selId);
+      app2.納品ID = '';
+      app2.商品名 = '';
+      app2.商品ロット = '';
+      app2.数量 = ''; 
+      app2.単価 = '';
+      app2.hiddenId = '';
+      alert(response.data.message);
+     });
+    }
+   }
+   else
+   {
+    alert("Fill All Field");
+   }
+  },
+  fetchData:function(id){
+   axios.get('/api/納品明細/'+id, {
+    ID:id
+   }).then(function(response){
+    app2.hiddenId = response.data.ID;
+    app2.hidden納品Id = response.data.納品ID;
+    app2.商品名 = response.data.商品名;
+    app2.商品ロット = response.data.商品ロット;
+    app2.数量 = response.data.数量;
+    app2.単価 = response.data.単価;
+    app2.myModel = true;
+    app2.actionButton = 'Update';
+    app2.dynamicTitle = 'Edit Data';
+   });
+  },
+  deleteData:function(id){
+   if(confirm("Are you sure you want to remove this data?"))
+   {
+    axios.delete('/api/納品明細/'+id, {
+     ID:id
+    }).then(function(response){
+     app2.fetchAllData_byID(app2.selId);
+     alert(response.data.message);
+    });
+   }
+  }
+ },
+ created:function(){
+//  this.fetchAllData();
+ },
+});
+
 </script>
 

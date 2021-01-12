@@ -15,9 +15,9 @@ def hello():
 def vue():
     return app.send_static_file('vue_test.html')
 
-@app.route('/bv')
-def bv():
-    return app.send_static_file('bv_test.html')
+@app.route('/v/<f>')
+def bv(f):
+    return app.send_static_file('./Vue_test/'+f)
 
 @app.route('/nouhin')
 def nouhin():
