@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, json, jsonify
 import sqlite3
 import json
 from sqlwrap import *
+from mkpdf import make_pdf
 
 app = Flask(__name__)
 
@@ -30,6 +31,15 @@ def compo():
 @app.route('/compo/<f>')
 def compof(f):
     return app.send_static_file('./Vue_test/'+f)
+
+#--------印刷 ブロック -------------
+
+@app.route('/print/<table>')
+def print(table):
+    make_pdf(table,'test','14')
+    return app.send_static_file('./pdf/output.pdf')
+
+
 
 #--------API ブロック -------------
 @app.route('/api/<table>',methods=['GET'])

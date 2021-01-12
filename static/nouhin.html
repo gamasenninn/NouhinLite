@@ -169,13 +169,13 @@
 
 <!---------納品明細------>
 <div class="container-fluid" id="crudApp2">
+ {{sum}}
  <template>
  <!--input type="text" class="form-control" v-model="txtDebug" / --> 
  <div class="overflow-auto" >
     <b-table striped hover caption-top
 	  id = "htable"
 	  sort-by =  "ID"
-	  sort-desc = false
 	  small
           label="Table Options"
           :items= allData
@@ -209,6 +209,10 @@
               label: '単価'
             },
             {
+              key: 'price',
+              label: '金額'
+            },
+            {
               key: 'control',
               label: '操作'
             },
@@ -220,6 +224,9 @@
 	 <div class="text-left">
              <input type="button" class="btn btn-success btn-sm" @click="openModel" value="新規" aligin="right"/>
          </div>
+      </template>
+      <template #cell(price)="data">
+         {{data.item.数量 * data.item.単価}}
       </template>
       <template v-slot:cell(control)="data">
          <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" >編集</button>
@@ -329,7 +336,7 @@ var app = new Vue({
       app.納品先 = '';
       app.担当者 = ''; 
       app.摘要 = '';
-      alert(response.data.message);
+      //alert(response.data.message);
      });
     }
     if(app.actionButton == 'Update')
@@ -348,7 +355,7 @@ var app = new Vue({
       app.担当者 = ''; 
       app.摘要 = '';
       app.hiddenId = '';
-      alert(response.data.message);
+      //alert(response.data.message);
      });
     }
    }
@@ -390,10 +397,10 @@ var app = new Vue({
   this.fetchAllData();
  },
  computed:{
-	rows(){
-	       //return this.items.length
-		return 5
-	}
+   rows(){
+       //return this.items.length
+     return 5
+   },
  },
 });
 
@@ -449,12 +456,12 @@ var app2 = new Vue({
          単価:app2.単価 
      }).then(function(response){
       app2.myModel = false;
-      app2.fetchAllData();
+      app2.fetchAllData_byID(app2.selId);
       app2.商品名 = '';
       app2.商品ロット = '';
       app2.数量 = ''; 
       app2.単価 = '';
-      alert(response.data.message);
+      //alert(response.data.message);
      });
     }
     if(app2.actionButton == 'Update')
@@ -475,7 +482,7 @@ var app2 = new Vue({
       app2.数量 = ''; 
       app2.単価 = '';
       app2.hiddenId = '';
-      alert(response.data.message);
+      //alert(response.data.message);
      });
     }
    }
@@ -506,10 +513,16 @@ var app2 = new Vue({
      ID:id
     }).then(function(response){
      app2.fetchAllData_byID(app2.selId);
-     alert(response.data.message);
+     //alert(response.data.message);
     });
    }
   }
+ },
+ computed:{
+     sum: function(){
+       if ( typeof(this.allData) == 'undefined' ){ return 0 }
+       return this.allData.map(item => item.数量*item.単価).reduce(function(a,b){return a+b},0);
+    }
  },
  created:function(){
 //  this.fetchAllData();
