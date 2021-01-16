@@ -10,9 +10,9 @@ from sqlwrap import *
 hkey = 15
 
 #---- Config ------
-template_file = './NouForm.pdf' # template PDF
-output_file = './static/pdf/output.pdf' # output PDF 
-tmp_file = './__tmp.pdf' # temporary
+#template_file = './NouForm.pdf' # template PDF
+#output_file = './static/pdf/output.pdf' # output PDF 
+#tmp_file = './__tmp.pdf' # temporary
 
 conf = {
     'file':{
@@ -20,26 +20,53 @@ conf = {
         'output': './static/pdf/output.pdf',
         'temporary': '__tmp.pdf'
     },
+    'DB':{
+        'database': './nousei.db',
+        'table_head': '納品',
+        'table_body':   '納品明細'
+    },
+    'label':{
+        'No':{
+            'x':12,
+            'y':55
+        },
+        '商品名':{
+            'x':25,
+            'y':55
+        },
+        '商品ロット':{
+            'x':83,
+            'y':55
+        },
+        '数量':{
+            'x':123,
+            'y':55
+        },
+        '単価':{
+            'x':145,
+            'y':55
+        },
+        '金額':{
+            'x':165,
+            'y':55
+        }
+    },   
     'header':{
         '納品日':{
             'x':150,
             'y':25,
-            'p':9.8
         },
         '納品先':{
             'x':20,
             'y':33,
-            'p':9.8
         },
         '摘要':{
             'x':15,
             'y':270,
-            'p':9.8
         },
         '合計':{
             'x':165,
             'y':255,
-            'p':9.8,
             'f':"{:>20,d}"
         }
     },
@@ -81,9 +108,6 @@ conf = {
 }
 
 #------ File Congig. --------
-#template_file = './NouForm.pdf' # template PDF
-#output_file = './static/pdf/output.pdf' # output PDF 
-#tmp_file = './__tmp.pdf' # temporary
 template_file = conf['file']['template']
 output_file = conf['file']['output'] 
 tmp_file = conf['file']['temporary']
@@ -100,10 +124,14 @@ cv.setFont('IPAexGothic', font_size)
 
 #---- DB read ----
 
-conn = sqlite3.connect('./nousei.db')
+db = conf['DB']['database']
+conn = sqlite3.connect(db)
 
-nouHs = dict_select_all_key(conn, '納品',{'ID':hkey }, 'ID')
-nouBs = dict_select_all_key(conn, '納品明細',{'納品ID':hkey }, '納品ID')
+htable = conf['DB']['table_head']
+btable = conf['DB']['table_body']
+
+nouHs = dict_select_all_key(conn, htable,{'ID':hkey }, 'ID')
+nouBs = dict_select_all_key(conn, btable,{'納品ID':hkey }, '納品ID')
 
 nouHs[0]['合計']=0
 for i,nouB in enumerate(nouBs):
@@ -119,18 +147,31 @@ def make_pdf(table,title,key):
 
     cv.setFillColorRGB(0, 0, 0.4)
 
+    for k,v in conf['label'].items():
+        x = v['x']
+        y = v['y']
+        label = k
+        if 'f' in v:
+            label = conf['header'][k]['f'].format(v)
+
+        cv.drawString(x*mm, h-y*mm, str(label))
+        
+        
+
+
+
     for i, nouH in enumerate( nouHs ):
             for k,v in nouH.items():
                     if k in conf['header']:
                         x = conf['header'][k]['x']
                         y = conf['header'][k]['y']
-                        p = conf['header'][k]['p']
+#                        p = conf['header'][k]['p']
                         if 'f' in conf['header'][k]:
                             v = conf['header'][k]['f'].format(v)
-                        print(i,k,v,x,y,p)
+                        print(i,k,v,x,y)
 #                        cv.drawString(y*mm, h-(x+p*i)*mm, v)
-                        cv.drawString(x*mm, h-(y+p*i)*mm, str(v))
-            print("--------")
+                        cv.drawString(x*mm, h-(y+i)*mm, str(v))
+            print("-")
 
     for i, nouB in enumerate( nouBs ):
             for k,v in nouB.items():
@@ -143,7 +184,7 @@ def make_pdf(table,title,key):
                         print(i,k,v,x,y,p)
 #                        cv.drawString(y*mm, h-(x+p*i)*mm, v)
                         cv.drawString(x*mm, h-(y+p*i)*mm, str(v))
-            print("--------")
+            print("-")
 
     # ---- temp out 
     cv.showPage()
