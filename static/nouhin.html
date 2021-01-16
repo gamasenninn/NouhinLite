@@ -133,8 +133,8 @@
        <div class="modal-dialog">
         <div class="modal-content">
          <div class="modal-header">
-          <button type="button" class="close" @click="myModel=false"><span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title">{{ dynamicTitle }}</h4>
+          <button type="button" class="close" @click="myModel=false"><span aria-hidden="true">&times;</span></button>
          </div>
          <div class="modal-body">
           <div class="form-group">
@@ -169,7 +169,8 @@
 
 <!---------納品明細------>
 <div class="container-fluid" id="crudApp2">
- {{sum}}
+ <h5>{{sum}}</h5>
+
  <template>
  <!--input type="text" class="form-control" v-model="txtDebug" / --> 
  <div class="overflow-auto" >
@@ -266,8 +267,8 @@
           <br />
           <br />
           <div align="center">
-           <input type="text" v-model="hiddenId" />
-           <input type="text" v-model="hidden納品Id" />
+           <input type="hidden" v-model="hiddenId" />
+           <input type="hidden" v-model="hidden納品Id" />
            <input type="button" class="btn btn-success btn-xs" v-model="actionButton" @click="submitData" />
           </div>
          </div>
@@ -287,11 +288,12 @@
 
 var app = new Vue({
  el:'#crudApp',
- props:{
-   allData:{ type: Array },
- }
- ,
+// props:{
+//   allData:{ type: Array },
+// }
+// ,
  data:{
+  allData : [],
   myModel:false,
   actionButton:'Insert',
   dynamicTitle:'Add Data',
@@ -390,6 +392,15 @@ var app = new Vue({
    }
   },
   selDetail:function(id){
+//   axios.get('/api/納品/'+id, {
+//    ID:id
+//   }).then(function(response){
+//    app.hiddenId = response.data.ID;
+//    app.納品日 = response.data.納品日;
+//    app.納品先 = response.data.納品先;
+//    app.担当者 = response.data.担当者;
+//    app.摘要 = response.data.摘要;
+//   });
     app2.fetchAllData_byID(id);
   }
  },
@@ -398,8 +409,8 @@ var app = new Vue({
  },
  computed:{
    rows(){
-       //return this.items.length
-     return 5
+     return this.allData.length
+     //return 5
    },
  },
 });
@@ -522,10 +533,11 @@ var app2 = new Vue({
      sum: function(){
        if ( typeof(this.allData) == 'undefined' ){ return 0 }
        return this.allData.map(item => item.数量*item.単価).reduce(function(a,b){return a+b},0);
-    }
+     },
  },
  created:function(){
 //  this.fetchAllData();
+//    app2.nouhinSaki = '';
  },
 });
 

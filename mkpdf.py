@@ -4,11 +4,89 @@ from reportlab.lib.pagesizes import A4, portrait
 from reportlab.lib.units import inch, mm, cm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+import sqlite3
+from sqlwrap import *
 
-#------ File Congig. --------
+hkey = 15
+
+#---- Config ------
 template_file = './NouForm.pdf' # template PDF
 output_file = './static/pdf/output.pdf' # output PDF 
 tmp_file = './__tmp.pdf' # temporary
+
+conf = {
+    'file':{
+        'template': './NouForm.pdf',
+        'output': './static/pdf/output.pdf',
+        'temporary': '__tmp.pdf'
+    },
+    'header':{
+        '納品日':{
+            'x':150,
+            'y':25,
+            'p':9.8
+        },
+        '納品先':{
+            'x':20,
+            'y':33,
+            'p':9.8
+        },
+        '摘要':{
+            'x':15,
+            'y':270,
+            'p':9.8
+        },
+        '合計':{
+            'x':165,
+            'y':255,
+            'p':9.8,
+            'f':"{:>20,d}"
+        }
+    },
+    'body':{
+        'No':{
+            'x':12,
+            'y':68,
+            'p':9.8
+        },
+        '商品名':{
+            'x':25,
+            'y':68,
+            'p':9.8
+        },
+        '商品ロット':{
+            'x':83,
+            'y':68,
+            'p':9.8
+        },
+        '数量':{
+            'x':123,
+            'y':68,
+            'p':9.8,
+            'f':"{:>10,d}"
+        },
+        '単価':{
+            'x':145,
+            'y':68,
+            'p':9.8,
+            'f':"{:>10,d}"
+        },
+        '金額':{
+            'x':165,
+            'y':68,
+            'p':9.8,
+            'f':"{:>20,d}"
+        }
+    }
+}
+
+#------ File Congig. --------
+#template_file = './NouForm.pdf' # template PDF
+#output_file = './static/pdf/output.pdf' # output PDF 
+#tmp_file = './__tmp.pdf' # temporary
+template_file = conf['file']['template']
+output_file = conf['file']['output'] 
+tmp_file = conf['file']['temporary']
 
 #------ Make A4 size Canvas
 w, h = portrait(A4)
@@ -20,44 +98,52 @@ ttf_file = './ipaexg.ttf'
 pdfmetrics.registerFont(TTFont('IPAexGothic', ttf_file))
 cv.setFont('IPAexGothic', font_size)
 
+#---- DB read ----
+
+conn = sqlite3.connect('./nousei.db')
+
+nouHs = dict_select_all_key(conn, '納品',{'ID':hkey }, 'ID')
+nouBs = dict_select_all_key(conn, '納品明細',{'納品ID':hkey }, '納品ID')
+
+nouHs[0]['合計']=0
+for i,nouB in enumerate(nouBs):
+    nouB['No'] = i + 1 
+    nouB['金額'] = nouB['数量']*nouB['単価']
+    nouHs[0]['合計'] += nouB['金額']
+
+
+
 # --- Make PDF --
 
 def make_pdf(table,title,key):
 
     cv.setFillColorRGB(0, 0, 0.4)
 
-    start = 68
-    p =9.8
+    for i, nouH in enumerate( nouHs ):
+            for k,v in nouH.items():
+                    if k in conf['header']:
+                        x = conf['header'][k]['x']
+                        y = conf['header'][k]['y']
+                        p = conf['header'][k]['p']
+                        if 'f' in conf['header'][k]:
+                            v = conf['header'][k]['f'].format(v)
+                        print(i,k,v,x,y,p)
+#                        cv.drawString(y*mm, h-(x+p*i)*mm, v)
+                        cv.drawString(x*mm, h-(y+p*i)*mm, str(v))
+            print("--------")
 
-    cv.drawString(25*mm, h-start*mm, "これはテストです。")
-    cv.drawString(25*mm, h-(start+p*1)*mm, "印刷の微調整は")
-    cv.drawString(25*mm, h-(start+p*2)*mm, "案外難しいものです")
-    cv.drawString(25*mm, h-(start+p*3)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*4)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*5)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*6)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*7)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*8)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*9)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*11)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*12)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*13)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*14)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*15)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*16)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*17)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*18)*mm, "令和3年 1月 20日")
-    cv.drawString(25*mm, h-(start+p*19)*mm, "令和3年 1月 20日")
-
-
-    cv.drawString(83*mm, h-(start+40)*mm, "test0001")
-    cv.drawString(83*mm, h-(start+50)*mm, "test0001")
-    cv.drawString(83*mm, h-(start+60)*mm, "test0001")
-    cv.drawString(83*mm, h-(start+70)*mm, "test0001")
-    cv.drawString(83*mm, h-(start+80)*mm, "test0001")
-    cv.drawString(83*mm, h-(start+90)*mm, "test0001")
-    cv.drawString(83*mm, h-(start+100)*mm, "test0001")
-    cv.drawString(83*mm, h-(start+110)*mm, "test0001")
+    for i, nouB in enumerate( nouBs ):
+            for k,v in nouB.items():
+                    if k in conf['body']:
+                        x = conf['body'][k]['x']
+                        y = conf['body'][k]['y']
+                        p = conf['body'][k]['p']
+                        if 'f' in conf['body'][k]:
+                            v = conf['body'][k]['f'].format(v)
+                        print(i,k,v,x,y,p)
+#                        cv.drawString(y*mm, h-(x+p*i)*mm, v)
+                        cv.drawString(x*mm, h-(y+p*i)*mm, str(v))
+            print("--------")
 
     # ---- temp out 
     cv.showPage()

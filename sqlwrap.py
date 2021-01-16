@@ -78,7 +78,7 @@ def json_delete(conn,table_name,j,key_name):
 
 #------ select operation
 
-def json_select_all(conn, table_name):
+def dict_select_all(conn, table_name):
     conn.row_factory = dict_factory
 
     c = conn.cursor()
@@ -86,9 +86,15 @@ def json_select_all(conn, table_name):
 
     nous = c.fetchall()  
 
+    return nous
+
+def json_select_all(conn, table_name):
+    nous = dict_select_all(conn, table_name)
     return json.dumps(nous)
 
-def json_select_all_key(conn, table_name,d, key_name):
+
+
+def dict_select_all_key(conn, table_name,d, key_name):
     conn.row_factory = dict_factory
 
     v = d.pop(key_name)
@@ -104,6 +110,11 @@ def json_select_all_key(conn, table_name,d, key_name):
 
     nous = c.fetchall()  
 
+    return nous
+
+def json_select_all_key(conn, table_name,d, key_name):
+
+    nous = dict_select_all_key(conn, table_name,d, key_name)
     return json.dumps(nous)
 
 
