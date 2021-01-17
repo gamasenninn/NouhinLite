@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from PyPDF2 import PdfFileWriter, PdfFileReader
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4, portrait
@@ -6,6 +8,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import sqlite3
 from sqlwrap import *
+import json
 
 hkey = 15
 
@@ -14,6 +17,10 @@ hkey = 15
 #output_file = './static/pdf/output.pdf' # output PDF 
 #tmp_file = './__tmp.pdf' # temporary
 
+with open('./pdfconf_nou.json','r',encoding="utf-8_sig") as f:
+    conf = json.load(f)
+
+'''
 conf = {
     'file':{
         'template': './NouForm.pdf',
@@ -106,7 +113,7 @@ conf = {
         }
     }
 }
-
+'''
 #------ File Congig. --------
 template_file = conf['file']['template']
 output_file = conf['file']['output'] 
@@ -143,7 +150,7 @@ for i,nouB in enumerate(nouBs):
 
 # --- Make PDF --
 
-def make_pdf(table,title,key):
+def make_pdf(table,key):
 
     cv.setFillColorRGB(0, 0, 0.4)
 
@@ -205,5 +212,5 @@ def make_pdf(table,title,key):
       output.write(fp)
 
 if __name__ == "__main__":
-    make_pdf('test_table','test_title','test_key')
+    make_pdf('test_table','test_key')
     

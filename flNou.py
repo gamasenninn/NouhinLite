@@ -3,6 +3,7 @@ import sqlite3
 import json
 from sqlwrap import *
 from mkpdf import make_pdf
+#import subprocess
 
 app = Flask(__name__)
 
@@ -36,9 +37,12 @@ def compof(f):
 
 @app.route('/print/<table>')
 def print(table):
-    make_pdf(table,'test','14')
-    return app.send_static_file('./pdf/output.pdf')
-
+    try:
+        make_pdf(table,'test','14')
+        return app.send_static_file('./pdf/output.pdf')
+    except:
+        print ("Print Error")
+        return "Print Error"
 
 
 #--------API ブロック -------------
