@@ -5,8 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NouhinLite</title>
   <!-- Load required Bootstrap and BootstrapVue CSS -->
+
   <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
   <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+
+  <!-- Load fontawesome -->
+  <!-- link href="./css/all.css" rel="stylesheet" --> <!--load all styles -->
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
 
   <!-- Load polyfills to support older browsers -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"     crossorigin="anonymous"></script>
@@ -43,16 +49,17 @@
 <body>
 
 <div class="container-fluid">
-   <br />
    <h3 align="center">納品書作成</h3>
-   <br />
 </div>
 
 
 <!---------納品書ヘッダー------>
 <div class="container-fluid" id="crudApp">
  <template>
-
+   <p>
+      納品一覧
+      <button type="button" name="new" class="btn btn-success btn-sm ml-3" @click="openModel" aligin="right"><i class="fa fa-plus"></i></button>
+   </p>
  <div class="overflow-auto" >
     <b-pagination
       	     v-model="currentPage"
@@ -94,7 +101,7 @@
             },
             {
               key: '担当者',
-              label: '担当者',
+              label: '担当',
 	      sortable: true
             },
             {
@@ -108,19 +115,14 @@
 
           ]"
     >
-      <template v-slot:table-caption>
-	 納品一覧
-	 <div class="text-left">
-             <input type="button" class="btn btn-success btn-sm" @click="openModel" value="新規" aligin="right"/>
-         </div>
-      </template>
       <template v-slot:cell(select)="data">
-         <button type="button" name="detail" class="btn btn-primary btn-sm edit" v-on:click="selDetail(`${data.item.ID}`)" >明細</button>
+         <button type="button" name="detail" class="btn btn-primary btn-sm edit" v-on:click="selDetail(`${data.item.ID}`)" ><i class="fa fa-th-list"></i></button>
       </template>
 
       <template v-slot:cell(control)="data">
-         <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" >編集</button>
-         <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)">削除</button>
+         <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" ><i class="fa fa-pencil"></i>
+</button>
+         <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)"><i class="fa fa-trash-o"></i></button>
       </template>
     </b-table>
  </div>
@@ -169,12 +171,26 @@
 
 <!---------納品明細------>
 <div class="container-fluid" id="crudApp2">
- <h5>{{sum}}</h5>
 
  <template>
- <!--input type="text" class="form-control" v-model="txtDebug" / --> 
- <div class="overflow-auto" >
-    <b-table striped hover caption-top
+
+   <div class="bt-2">
+	 納品明細
+             <button type="button" name="new" class="btn btn-success btn-sm ml-3" @click="openModel" aligin="right"><i class="fa fa-plus"></i></button>
+	     <a class="btn btn-primary btn-sm ml-3" v-bind:href="'/print/pdf_nouhin/'+selId" target="_blank" role="button"><i class="fa fa-print"></i></a>
+ 	     <span class="h5 ml-3">合計金額：{{sum}}</span>
+   <P></P>
+   </div>
+
+   <!--input type="text" class="form-control" v-model="txtDebug" / --> 
+   <!--div class="overflow-auto" -->
+
+
+
+
+
+    <b-table striped hover caption-top 
+	  sticky-header
 	  id = "htable"
 	  sort-by =  "ID"
 	  small
@@ -188,17 +204,17 @@
             },
             {
               key: '納品ID',
-              label: '納品ID',
+              label: '納ID',
 	      sortable: true
             },
             {
               key: '商品名',
-              label: '商品名',
+              label: '品名',
 	      sortable: true
             },
             {
               key: '商品ロット',
-              label: '商品ロット',
+              label: 'ロット',
 	      sortable: true
             },
             {
@@ -220,22 +236,15 @@
 
           ]"
     >
-      <template v-slot:table-caption>
-	 納品一覧
-	 <div class="text-left">
-             <input type="button" class="btn btn-success btn-sm" @click="openModel" value="新規" aligin="right"/>
-	     <a class="btn btn-primary btn-sm" href="/print/nouhin" role="button">納品書印刷</a>
-         </div>
-      </template>
       <template #cell(price)="data">
          {{data.item.数量 * data.item.単価}}
       </template>
       <template v-slot:cell(control)="data">
-         <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" >編集</button>
-         <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)">削除</button>
+         <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" ><i class="fa fa-pencil"></i></button>
+         <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)"><i class="fa fa-trash-o"></i></button>
       </template>
     </b-table>
- </div>
+ <!-- /div -->
  </template>
 
  <div v-if="myModel">
@@ -298,7 +307,7 @@ var app = new Vue({
   myModel:false,
   actionButton:'Insert',
   dynamicTitle:'Add Data',
-  perPage: 2,
+  perPage: 3,
   currentPage: 1
  },
  methods:{

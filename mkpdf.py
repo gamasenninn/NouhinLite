@@ -9,111 +9,23 @@ from reportlab.pdfbase.ttfonts import TTFont
 import sqlite3
 from sqlwrap import *
 import json
+import sys
 
+
+args = sys.argv
+conf_file = './pdf_nouhin.conf'
 hkey = 15
 
-#---- Config ------
-#template_file = './NouForm.pdf' # template PDF
-#output_file = './static/pdf/output.pdf' # output PDF 
-#tmp_file = './__tmp.pdf' # temporary
+print(args)
 
-with open('./pdfconf_nou.json','r',encoding="utf-8_sig") as f:
+if len(args) > 2:
+    conf_file = './'+args[1]+'.conf'
+    hkey = int(args[2])
+
+#---- Config ------
+with open('./pdf_nouhin.conf','r',encoding="utf-8_sig") as f:
     conf = json.load(f)
 
-'''
-conf = {
-    'file':{
-        'template': './NouForm.pdf',
-        'output': './static/pdf/output.pdf',
-        'temporary': '__tmp.pdf'
-    },
-    'DB':{
-        'database': './nousei.db',
-        'table_head': '納品',
-        'table_body':   '納品明細'
-    },
-    'label':{
-        'No':{
-            'x':12,
-            'y':55
-        },
-        '商品名':{
-            'x':25,
-            'y':55
-        },
-        '商品ロット':{
-            'x':83,
-            'y':55
-        },
-        '数量':{
-            'x':123,
-            'y':55
-        },
-        '単価':{
-            'x':145,
-            'y':55
-        },
-        '金額':{
-            'x':165,
-            'y':55
-        }
-    },   
-    'header':{
-        '納品日':{
-            'x':150,
-            'y':25,
-        },
-        '納品先':{
-            'x':20,
-            'y':33,
-        },
-        '摘要':{
-            'x':15,
-            'y':270,
-        },
-        '合計':{
-            'x':165,
-            'y':255,
-            'f':"{:>20,d}"
-        }
-    },
-    'body':{
-        'No':{
-            'x':12,
-            'y':68,
-            'p':9.8
-        },
-        '商品名':{
-            'x':25,
-            'y':68,
-            'p':9.8
-        },
-        '商品ロット':{
-            'x':83,
-            'y':68,
-            'p':9.8
-        },
-        '数量':{
-            'x':123,
-            'y':68,
-            'p':9.8,
-            'f':"{:>10,d}"
-        },
-        '単価':{
-            'x':145,
-            'y':68,
-            'p':9.8,
-            'f':"{:>10,d}"
-        },
-        '金額':{
-            'x':165,
-            'y':68,
-            'p':9.8,
-            'f':"{:>20,d}"
-        }
-    }
-}
-'''
 #------ File Congig. --------
 template_file = conf['file']['template']
 output_file = conf['file']['output'] 
