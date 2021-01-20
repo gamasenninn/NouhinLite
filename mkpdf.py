@@ -22,7 +22,7 @@ if len(args) > 2:
     conf_file = './'+args[1]+'.conf'
     hkey = int(args[2])
 
-#---- Config ------
+#---- Configファイルロード ------
 with open('./pdf_nouhin.conf','r',encoding="utf-8_sig") as f:
     conf = json.load(f)
 
@@ -39,7 +39,9 @@ cv = canvas.Canvas(tmp_file, pagesize=(w, h))
 font_size = 11
 ttf_file = './ipaexg.ttf'
 pdfmetrics.registerFont(TTFont('IPAexGothic', ttf_file))
-cv.setFont('IPAexGothic', font_size)
+#cv.setFont('IPAexGothic', font_size)
+cv.setFont(conf['default']['font'],conf['default']['fontsize'])
+
 
 #---- DB read ----
 
@@ -54,31 +56,41 @@ nouBs = dict_select_all_key(conn, btable,{'納品ID':hkey }, '納品ID')
 
 nouHs[0]['合計']=0
 for i,nouB in enumerate(nouBs):
-    nouB['No'] = i + 1 
-    nouB['金額'] = nouB['数量']*nouB['単価']
-    nouHs[0]['合計'] += nouB['金額']
-
+    nouB['No'] = i + 1
+    try:
+        nouB['金額'] = int(nouB['数量']*nouB['単価'])
+        nouHs[0]['合計'] += nouB['金額']
+    except:
+        pass
 
 
 # --- Make PDF --
 
+
+
 def make_pdf(table,key):
 
     cv.setFillColorRGB(0, 0, 0.4)
+
+#    cv.line(10*mm,h-10*mm,100*mm,h-100*mm)
 
     for k,v in conf['label'].items():
         x = v['x']
         y = v['y']
         label = k
         if 'f' in v:
-            label = conf['header'][k]['f'].format(v)
+            label = conf['label'][k]['f'].format(v)
+        if 's' in v:
+            font_size = conf['label'][k]['s']
+        else:
+            font_size = conf['default']['fontsize']
 
+        if 'f' in conf['label'][k]:
+            v = conf['label'][k]['f'].format(v)
+            
+        cv.setFont(conf['default']['font'],font_size)
         cv.drawString(x*mm, h-y*mm, str(label))
-        
-        
-
-
-
+             
     for i, nouH in enumerate( nouHs ):
             for k,v in nouH.items():
                     if k in conf['header']:
@@ -87,10 +99,18 @@ def make_pdf(table,key):
 #                        p = conf['header'][k]['p']
                         if 'f' in conf['header'][k]:
                             v = conf['header'][k]['f'].format(v)
-                        print(i,k,v,x,y)
+
+                        if 's' in conf['header'][k]:
+                            font_size = conf['header'][k]['s']
+                        else:
+                            font_size = conf['default']['fontsize']
+                           
+                        cv.setFont(conf['default']['font'],font_size)
+                            
+#                        print(i,k,v,x,y)
 #                        cv.drawString(y*mm, h-(x+p*i)*mm, v)
                         cv.drawString(x*mm, h-(y+i)*mm, str(v))
-            print("-")
+#            print("-")
 
     for i, nouB in enumerate( nouBs ):
             for k,v in nouB.items():
@@ -100,10 +120,10 @@ def make_pdf(table,key):
                         p = conf['body'][k]['p']
                         if 'f' in conf['body'][k]:
                             v = conf['body'][k]['f'].format(v)
-                        print(i,k,v,x,y,p)
+#                        print(i,k,v,x,y,p)
 #                        cv.drawString(y*mm, h-(x+p*i)*mm, v)
                         cv.drawString(x*mm, h-(y+p*i)*mm, str(v))
-            print("-")
+#            print("-")
 
     # ---- temp out 
     cv.showPage()

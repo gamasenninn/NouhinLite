@@ -70,10 +70,11 @@
 	     align= "left"
     ></b-pagination>
 
-    <b-table striped hover caption-top
+    <b-table hover caption-top bordered small
 	  id = "htable"
 	  sort-by =  "ID"
 	  sort-desc = true
+	  head-variant="light"
 	  :per-page = "perPage"
 	  :current-page = "currentPage"
 	  small
@@ -110,7 +111,9 @@
             },
             {
               key: 'control',
-              label: '操作'
+              label: '操作',
+	      class: 'text-center',
+	      thstyle: 'style:width=100'
             },
 
           ]"
@@ -124,6 +127,13 @@
 </button>
          <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)"><i class="fa fa-trash-o"></i></button>
       </template>
+
+      <template #table-colgroup="scope">
+        <col
+        >
+      </template>
+
+
     </b-table>
  </div>
  </template>
@@ -170,6 +180,7 @@
 </div>
 
 <!---------納品明細------>
+<p></p>
 <div class="container-fluid" id="crudApp2">
 
  <template>
@@ -178,7 +189,8 @@
 	 納品明細
              <button type="button" name="new" class="btn btn-success btn-sm ml-3" @click="openModel" aligin="right"><i class="fa fa-plus"></i></button>
 	     <a class="btn btn-primary btn-sm ml-3" v-bind:href="'/print/pdf_nouhin/'+selId" target="_blank" role="button"><i class="fa fa-print"></i></a>
- 	     <span class="h5 ml-3">合計金額：{{sum}}</span>
+ 	     <span class="h5 ml-3">納品番号：{{selId}}</span>
+ 	     <span class="h5 ml-3">合計金額：{{sum|nf}}円</span>
    <P></P>
    </div>
 
@@ -189,24 +201,25 @@
 
 
 
-    <b-table striped hover caption-top 
+    <b-table hover caption-top bordered small
 	  sticky-header
 	  id = "htable"
 	  sort-by =  "ID"
 	  small
+	  head-variant="light"
           label="Table Options"
           :items= allData
           :fields="[
-            {
-              key: 'ID',
-              label: 'ID',
-	      sortable: true
-            },
-            {
-              key: '納品ID',
-              label: '納ID',
-	      sortable: true
-            },
+            //{
+            //  key: 'ID',
+            //  label: 'ID',
+	    //  sortable: true
+            //},
+            //{
+            //  key: '納品ID',
+            //  label: '納ID',
+	    //  sortable: true
+            //},
             {
               key: '商品名',
               label: '品名',
@@ -219,25 +232,32 @@
             },
             {
               key: '数量',
-              label: '数量'
+              label: '数量',
+	      class: 'text-right',
+	      formatter:value => {
+                   return value.toLocaleString();
+              }
             },
             {
               key: '単価',
-              label: '単価'
+              label: '単価',
+	      class: 'text-right'
             },
             {
               key: 'price',
-              label: '金額'
+              label: '金額',
+	      class: 'text-right'
             },
             {
               key: 'control',
-              label: '操作'
+              label: '操作',
+	      class: 'text-center'
             },
 
           ]"
     >
       <template #cell(price)="data">
-         {{data.item.数量 * data.item.単価}}
+         {{data.item.数量 * data.item.単価|nf}}
       </template>
       <template v-slot:cell(control)="data">
          <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" ><i class="fa fa-pencil"></i></button>
@@ -295,6 +315,13 @@
 </html>
 
 <script>
+
+
+Vue.filter('nf', function(val){
+	return val.toLocaleString();
+});
+
+
 
 var app = new Vue({
  el:'#crudApp',
@@ -391,13 +418,13 @@ var app = new Vue({
    });
   },
   deleteData:function(id){
-   if(confirm("Are you sure you want to remove this data?"))
+   if(confirm("データを削除してよろしいですか?"))
    {
     axios.delete('/api/納品/'+id, {
      ID:id
     }).then(function(response){
      app.fetchAllData();
-     alert(response.data.message);
+     //alert(response.data.message);
     });
    }
   },
@@ -528,7 +555,7 @@ var app2 = new Vue({
    });
   },
   deleteData:function(id){
-   if(confirm("Are you sure you want to remove this data?"))
+   if(confirm("データを削除してよろしいですか?"))
    {
     axios.delete('/api/納品明細/'+id, {
      ID:id
