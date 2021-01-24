@@ -53,9 +53,11 @@
 </div>
 
 
+
 <!---------納品書ヘッダー------>
 <div class="container-fluid" id="crudApp">
  <template>
+
    <p>
       納品一覧
       <button type="button" name="new" class="btn btn-success btn-sm ml-3" @click="openModel" aligin="right"><i class="fa fa-plus"></i></button>
@@ -124,7 +126,7 @@
 
       <template v-slot:cell(control)="data">
          <button type="button" name="edit" class="btn btn-primary btn-sm edit" v-on:click="fetchData(`${data.item.ID}`)" ><i class="fa fa-pencil"></i>
-</button>
+         </button>
          <button type="button" name="delete" class="btn btn-danger btn-sm delete" v-on:click="deleteData(`${data.item.ID}`)"><i class="fa fa-trash-o"></i></button>
       </template>
 
@@ -151,7 +153,7 @@
          <div class="modal-body">
           <div class="form-group">
            <label>納品日</label>
-           <input type="text" class="form-control" v-model="納品日" />
+	         <b-form-input v-model="納品日" type="date"></b-form-input>
           </div>
           <div class="form-group">
            <label>納品先</label>
@@ -166,6 +168,7 @@
            <input type="text" class="form-control" v-model="摘要" />
           </div>
           <br />
+
           <div align="center">
            <input type="hidden" v-model="hiddenId" />
            <input type="button" class="btn btn-success btn-xs" v-model="actionButton" @click="submitData" />
@@ -177,6 +180,16 @@
      </div>
     </transition>
   </div> <!--End Modal --> 
+
+
+<b-modal id="modal-ns" title="納品先一覧">
+     <p class="my-4">Hello from modal!</p>
+</b-modal>
+
+
+
+
+
 </div>
 
 <!---------納品明細------>
@@ -288,11 +301,13 @@
           </div>
           <div class="form-group">
            <label>数量</label>
-           <input type="text" class="form-control" v-model="数量" />
+           <!--input type="text" class="form-control" v-model="数量" / -->
+	   <b-form-input v-model="数量" type="number"></b-form-input>
           </div>
           <div class="form-group">
            <label>単価</label>
-           <input type="text" class="form-control" v-model="単価" />
+           <!--input type="text" class="form-control" v-model="単価" /-->
+	   <b-form-input v-model="単価" type="number"></b-form-input>
           </div>
           <br />
           <br />
@@ -325,10 +340,6 @@ Vue.filter('nf', function(val){
 
 var app = new Vue({
  el:'#crudApp',
-// props:{
-//   allData:{ type: Array },
-// }
-// ,
  data:{
   allData : [],
   myModel:false,
@@ -338,11 +349,8 @@ var app = new Vue({
   currentPage: 1
  },
  methods:{
-//  debug:function(id){
-//	app2.txtDebug = id;
-//  },
   fetchAllData:function(){
-   axios.get('/api/納品', {
+   axios.get('api/納品', {
     action:'fetchall'
    }).then(function(response){
     app.allData = response.data;
@@ -363,7 +371,7 @@ var app = new Vue({
    {
     if(app.actionButton == 'Insert')
     {
-     axios.post('/api/納品', {
+     axios.post('api/納品', {
          納品日:app.納品日, 
          納品先:app.納品先, 
          担当者:app.担当者, 
@@ -380,7 +388,7 @@ var app = new Vue({
     }
     if(app.actionButton == 'Update')
     {
-     axios.put('/api/納品', {
+     axios.put('api/納品', {
 	 ID : app.hiddenId,
          納品日:app.納品日, 
          納品先:app.納品先, 
@@ -404,7 +412,7 @@ var app = new Vue({
    }
   },
   fetchData:function(id){
-   axios.get('/api/納品/'+id, {
+   axios.get('api/納品/'+id, {
     ID:id
    }).then(function(response){
     app.hiddenId = response.data.ID;
@@ -420,7 +428,7 @@ var app = new Vue({
   deleteData:function(id){
    if(confirm("データを削除してよろしいですか?"))
    {
-    axios.delete('/api/納品/'+id, {
+    axios.delete('api/納品/'+id, {
      ID:id
     }).then(function(response){
      app.fetchAllData();
@@ -429,7 +437,7 @@ var app = new Vue({
    }
   },
   selDetail:function(id){
-//   axios.get('/api/納品/'+id, {
+//   axios.get('api/納品/'+id, {
 //    ID:id
 //   }).then(function(response){
 //    app.hiddenId = response.data.ID;
@@ -466,14 +474,14 @@ var app2 = new Vue({
  },
  methods:{
   fetchAllData:function(){
-   axios.get('/api/納品明細', {
+   axios.get('api/納品明細', {
     action:'fetchall'
    }).then(function(response){
     app2.allData = response.data;
    });
   },
   fetchAllData_byID:function(id){
-   axios.get('/api/納品明細/納品ID/'+id, {
+   axios.get('api/納品明細/納品ID/'+id, {
     action:'fetchall'
    }).then(function(response){
     app2.allData = response.data;
@@ -496,7 +504,7 @@ var app2 = new Vue({
    {
     if(app2.actionButton == 'Insert')
     {
-     axios.post('/api/納品明細', {
+     axios.post('api/納品明細', {
          納品ID:app2.selId, 
          商品名:app2.商品名, 
          商品ロット:app2.商品ロット, 
@@ -514,7 +522,7 @@ var app2 = new Vue({
     }
     if(app2.actionButton == 'Update')
     {
-     axios.put('/api/納品明細', {
+     axios.put('api/納品明細', {
 	 ID : app2.hiddenId,
          納品ID:app2.selId,
          商品名:app2.商品名, 
@@ -540,7 +548,7 @@ var app2 = new Vue({
    }
   },
   fetchData:function(id){
-   axios.get('/api/納品明細/'+id, {
+   axios.get('api/納品明細/'+id, {
     ID:id
    }).then(function(response){
     app2.hiddenId = response.data.ID;
@@ -557,7 +565,7 @@ var app2 = new Vue({
   deleteData:function(id){
    if(confirm("データを削除してよろしいですか?"))
    {
-    axios.delete('/api/納品明細/'+id, {
+    axios.delete('api/納品明細/'+id, {
      ID:id
     }).then(function(response){
      app2.fetchAllData_byID(app2.selId);
